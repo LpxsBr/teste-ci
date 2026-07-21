@@ -21,4 +21,5 @@ jobs:
         run: |
           git init
           git remote add origin https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git
-          git push origin ${{ github.sha }}:approval --force
+          git fetch origin ${{ github.sha }}
+          git push origin FETCH_HEAD:approval --force
