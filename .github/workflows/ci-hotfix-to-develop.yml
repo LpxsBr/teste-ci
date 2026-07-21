@@ -1,0 +1,74 @@
+name: CI | Sync hotfix to develop
+
+on:
+  push:
+    branches:
+      - hotfix
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sync-hotfix-develop
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        branch:
+          - develop
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Sync branch
+        shell: bash
+        run: |
+
+          TARGET="${{ matrix.branch }}"
+
+          git fetch origin
+
+          if git show-ref --verify --quiet "refs/remotes/origin/$TARGET"; then
+            git checkout -B "$TARGET" "origin/$TARGET"
+          else
+            echo "Branch $TARGET não existe. Criando..."
+            git checkout -b "$TARGET"
+          fi
+
+          BACKUP="backup/${TARGET}-$(date +'%Y%m%d-%H%M%S')"
+
+          echo "Criando backup: $BACKUP"
+
+          git branch "$BACKUP"
+          git push origin "$BACKUP"
+
+          if git merge --no-ff --no-edit origin/hotfix; then
+
+            echo "Merge realizado com sucesso."
+
+            git push origin "$TARGET"
+
+          else
+
+            echo "Conflito detectado durante merge."
+
+            git merge --abort || true
+
+            echo "Backup disponível em: $BACKUP"
+
+            exit 1
+
+          fi
