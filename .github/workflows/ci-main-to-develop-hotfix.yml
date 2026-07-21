@@ -1,69 +1,69 @@
-name: CI | Updating hotfix and develop from main
+# name: CI | Updating hotfix and develop from main
 
-on:
-  push:
-    branches:
-      - main
+# on:
+#   push:
+#     branches:
+#       - main
 
-permissions:
-  contents: write
+# permissions:
+#   contents: write
 
-jobs:
-  sync:
-    runs-on: ubuntu-latest
+# jobs:
+#   sync:
+#     runs-on: ubuntu-latest
 
-    strategy:
-      fail-fast: false
-      matrix:
-        branch:
-          - develop
-          - hotfix
+#     strategy:
+#       fail-fast: false
+#       matrix:
+#         branch:
+#           - develop
+#           - hotfix
 
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+#     steps:
+#       - uses: actions/checkout@v4
+#         with:
+#           fetch-depth: 0
 
-      - name: Configure Git
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+#       - name: Configure Git
+#         run: |
+#           git config user.name "github-actions[bot]"
+#           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-      - name: Sync branch
-        shell: bash
-        run: |
+#       - name: Sync branch
+#         shell: bash
+#         run: |
 
-          TARGET="${{ matrix.branch }}"
+#           TARGET="${{ matrix.branch }}"
 
-          git fetch origin
+#           git fetch origin
 
-          git checkout -B "$TARGET" "origin/$TARGET"
+#           git checkout -B "$TARGET" "origin/$TARGET"
 
-          if git merge --no-ff --no-edit origin/main; then
+#           if git merge --no-ff --no-edit origin/main; then
 
-              echo "Merge realizado."
-              git push origin "$TARGET"
+#               echo "Merge realizado."
+#               git push origin "$TARGET"
 
-          else
+#           else
 
-              echo "Conflito detectado."
+#               echo "Conflito detectado."
 
-              git merge --abort || true
+#               git merge --abort || true
 
-              BACKUP="backup/${TARGET}-$(date +'%Y%m%d-%H%M%S')"
+#               BACKUP="backup/${TARGET}-$(date +'%Y%m%d-%H%M%S')"
 
-              echo "Criando $BACKUP"
+#               echo "Criando $BACKUP"
 
-              git checkout -b "$BACKUP"
+#               git checkout -b "$BACKUP"
 
-              git push origin "$BACKUP"
+#               git push origin "$BACKUP"
 
-              git checkout "$TARGET"
+#               git checkout "$TARGET"
 
-              git fetch origin
+#               git fetch origin
 
-              git reset --hard origin/main
+#               git reset --hard origin/main
 
-              git push --force-with-lease origin "$TARGET"
+#               git push --force-with-lease origin "$TARGET"
 
-          fi
+#           fi
