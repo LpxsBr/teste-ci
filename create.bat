@@ -12,3 +12,6 @@ for %%B in (a b c d e f g h i j) do (
 
 echo Concluido!
 pause
+
+
+echo teste
