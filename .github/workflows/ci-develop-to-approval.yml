@@ -20,6 +20,6 @@ jobs:
       - name: Sync approval
         run: |
           git init
-          git remote add origin https://github.com/${{ github.repository }}.git
+          git remote add origin https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git
           git fetch origin develop
           git push origin FETCH_HEAD:approval --force-with-lease
