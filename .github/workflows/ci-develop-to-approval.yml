@@ -16,26 +16,10 @@ jobs:
   sync:
     runs-on: ubuntu-latest
 
-    strategy:
-      fail-fast: false
-      matrix:
-        branch:
-          - approval
-
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
-      
-      - name: Configure Git
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-
       - name: Sync approval
         run: |
-          git fetch origin develop approval
-          git checkout approval
-          git reset --hard origin/develop
-          git push origin approval --force-with-lease
+          git init
+          git remote add origin https://github.com/${{ github.repository }}.git
+          git fetch origin develop
+          git push origin FETCH_HEAD:approval --force-with-lease
